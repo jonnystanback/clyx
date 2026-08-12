@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>clyx</title>
+  <meta name="description" content="clyx — tagline goes here." />
+
+  <link rel="icon" type="image/jpeg" href="assets/favicon.jpg" />
+  <link rel="apple-touch-icon" href="assets/favicon.jpg" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="clyx" />
+  <meta property="og:description" content="Tagline goes here." />
+  <meta property="og:image" content="assets/share.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="675" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="clyx" />
+  <meta name="twitter:description" content="Tagline goes here." />
+  <meta name="twitter:image" content="assets/share.jpg" />
+
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.min.css" />
+  <!-- Bump ?v= whenever styles.css or script.js changes, so browsers
+       and CDNs fetch the new file instead of a cached copy. -->
+  <link rel="stylesheet" href="styles.css?v=1" />
+  <script>
+    try {
+      if (localStorage.getItem("clyx-unlocked") !== "1") {
+        document.documentElement.classList.add("is-locked");
+      }
+    } catch (e) {
+      document.documentElement.classList.add("is-locked");
+    }
+  </script>
+</head>
+<body class="is-booting">
+  <div class="gate" id="gate" role="dialog" aria-modal="true" aria-label="Password required">
+    <div class="gate__box">
+      <form class="gate__form" id="gate-form" autocomplete="off">
+        <label class="gate__label" for="gate-password">Password</label>
+        <div class="gate__field">
+          <input
+            class="gate__input"
+            id="gate-password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            inputmode="text"
+            required
+          />
+        </div>
+        <p class="gate__error" id="gate-error" hidden>Incorrect password</p>
+        <button type="submit" class="gate__submit">Enter</button>
+      </form>
+    </div>
+  </div>
+
+  <main id="site">
+    <section class="landing" aria-label="clyx">
+      <div class="landing__bg" aria-hidden="true"></div>
+
+      <div class="landing__logo-wrap">
+        <div class="hero-logo" id="hero-logo" aria-label="clyx">
+          <!-- SVG injected by script for stroke + fill layers -->
+        </div>
+      </div>
+    </section>
+
+    <section class="slides" id="slides" aria-label="Portfolio slides">
+      <!-- Sticky contents toggle -->
+      <button
+        type="button"
+        class="contents-toggle"
+        id="contents-toggle"
+        aria-label="Open contents"
+        aria-expanded="false"
+        aria-controls="contents-panel"
+      >
+        <span class="contents-toggle__icon" aria-hidden="true">
+          <span class="contents-toggle__bar contents-toggle__bar--a"></span>
+          <span class="contents-toggle__bar contents-toggle__bar--b"></span>
+        </span>
+      </button>
+
+      <aside
+        class="contents-panel"
+        id="contents-panel"
+        aria-hidden="true"
+        aria-label="Contents"
+      >
+        <div class="contents-panel__inner">
+          <div class="contents-panel__header">
+            <div class="contents-panel__brand">clyx</div>
+            <div class="contents-panel__label">Slide</div>
+          </div>
+          <nav class="contents-panel__nav" id="contents-nav"></nav>
+        </div>
+      </aside>
+
+      <div class="contents-backdrop" id="contents-backdrop" hidden></div>
+
+      <!-- Slides go here. One <figure> per slide:
+
+           <figure class="slide" id="slide-01">
+             <figcaption class="slide__title">Slide Title</figcaption>
+             <img class="slide__img" src="assets/slides/01.jpg" alt="Slide Title"
+                  width="2400" height="1350" loading="eager" decoding="async" />
+           </figure>
+
+           The contents panel builds itself from these — each figure needs a
+           unique id and a .slide__title. width/height must match the real
+           pixel size. Use loading="eager" on the first slide only. -->
+    </section>
+
+    <footer class="site-footer" aria-label="Counterparty">
+      <div class="site-footer__inner">
+        <img
+          class="site-footer__logo"
+          src="assets/footerlogo.png"
+          alt="Counterparty"
+          width="5612"
+          height="1220"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+    </footer>
+  </main>
+
+  <script src="script.js?v=1" defer></script>
+</body>
+</html>
