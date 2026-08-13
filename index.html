@@ -6,26 +6,26 @@
   <title>clyx</title>
   <meta name="description" content="clyx — tagline goes here." />
 
-  <link rel="icon" type="image/jpeg" href="assets/favicon.jpg" />
-  <link rel="apple-touch-icon" href="assets/favicon.jpg" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="apple-touch-icon" href="assets/favicon.png" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="clyx" />
   <meta property="og:description" content="Tagline goes here." />
-  <meta property="og:image" content="assets/share.jpg" />
+  <meta property="og:image" content="assets/shareimage.jpg" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="675" />
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="clyx" />
   <meta name="twitter:description" content="Tagline goes here." />
-  <meta name="twitter:image" content="assets/share.jpg" />
+  <meta name="twitter:image" content="assets/shareimage.jpg" />
 
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.min.css" />
   <!-- Bump ?v= whenever styles.css or script.js changes, so browsers
        and CDNs fetch the new file instead of a cached copy. -->
-  <link rel="stylesheet" href="styles.css?v=4" />
+  <link rel="stylesheet" href="styles.css?v=5" />
   <script>
     try {
       if (localStorage.getItem("clyx-unlocked") !== "1") {
@@ -105,17 +105,155 @@
 
       <div class="contents-backdrop" id="contents-backdrop" hidden></div>
 
-      <!-- Slides go here. One <figure> per slide:
+      <figure class="slide" id="slide-01">
+        <figcaption class="slide__title">clyx — New Rebrand 2026</figcaption>
+        <img class="slide__img" src="assets/slides/c1.jpg" alt="clyx - New Rebrand 2026" width="1920" height="1080" loading="eager" decoding="async" />
+      </figure>
 
-           <figure class="slide" id="slide-01">
-             <figcaption class="slide__title">Slide Title</figcaption>
-             <img class="slide__img" src="assets/slides/01.jpg" alt="Slide Title"
-                  width="2400" height="1350" loading="eager" decoding="async" />
-           </figure>
+      <figure class="slide" id="slide-02">
+        <figcaption class="slide__title">See Who clyx With You</figcaption>
+        <img class="slide__img" src="assets/slides/c2.jpg" alt="See Who clyx With You" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
 
-           The contents panel builds itself from these — each figure needs a
-           unique id and a .slide__title. width/height must match the real
-           pixel size. Use loading="eager" on the first slide only. -->
+      <figure class="slide" id="slide-03">
+        <figcaption class="slide__title">Introduction</figcaption>
+        <img class="slide__img" src="assets/slides/c3.jpg" alt="Introduction" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-04">
+        <figcaption class="slide__title">Why Clyx Exists</figcaption>
+        <img class="slide__img" src="assets/slides/c4.jpg" alt="Why Clyx Exists" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-05">
+        <figcaption class="slide__title">The Problem</figcaption>
+        <img class="slide__img" src="assets/slides/c5.jpg" alt="The Problem" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-06">
+        <figcaption class="slide__title">The Shift</figcaption>
+        <img class="slide__img" src="assets/slides/c6.jpg" alt="The Shift" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-07">
+        <figcaption class="slide__title">Brand Positioning</figcaption>
+        <img class="slide__img" src="assets/slides/c7.jpg" alt="Brand Positioning" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-08">
+        <figcaption class="slide__title">Target Audience</figcaption>
+        <img class="slide__img" src="assets/slides/c8.jpg" alt="Target Audience" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-09">
+        <figcaption class="slide__title">Primary & Secondary Audience</figcaption>
+        <img class="slide__img" src="assets/slides/c9.jpg" alt="Primary & Secondary Audience" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-10">
+        <figcaption class="slide__title">Not a Ticketing Platform</figcaption>
+        <img class="slide__img" src="assets/slides/c10.jpg" alt="Not a Ticketing Platform" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-11">
+        <figcaption class="slide__title">Differentiators</figcaption>
+        <img class="slide__img" src="assets/slides/c11.jpg" alt="Differentiators" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-12">
+        <figcaption class="slide__title">Who Are Your Users?</figcaption>
+        <img class="slide__img" src="assets/slides/c12.jpg" alt="Who Are Your Users?" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-13">
+        <figcaption class="slide__title">Branding That You Like</figcaption>
+        <img class="slide__img" src="assets/slides/c13.jpg" alt="Branding That You Like" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-14">
+        <figcaption class="slide__title">What We Like — NOVA</figcaption>
+        <img class="slide__img" src="assets/slides/c14.jpg" alt="What We Like - NOVA" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-15">
+        <figcaption class="slide__title">Visual Directions</figcaption>
+        <img class="slide__img" src="assets/slides/c15.jpg" alt="Visual Directions" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-16">
+        <figcaption class="slide__title">Visual Identity #1 — Organic Neue</figcaption>
+        <img class="slide__img" src="assets/slides/c16.jpg" alt="Visual Identity #1 - Organic Neue" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-17">
+        <figcaption class="slide__title">Color System #1 — Organic Neue</figcaption>
+        <img class="slide__img" src="assets/slides/c17.jpg" alt="Color System #1 - Organic Neue" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-18">
+        <figcaption class="slide__title">Visual Identity #2 — Scrapbook Fun</figcaption>
+        <img class="slide__img" src="assets/slides/c18.jpg" alt="Visual Identity #2 - Scrapbook Fun" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-19">
+        <figcaption class="slide__title">Color System #2 — Scrapbook Fun</figcaption>
+        <img class="slide__img" src="assets/slides/c19.jpg" alt="Color System #2 - Scrapbook Fun" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-20">
+        <figcaption class="slide__title">Scrapbook Fun — Web Mockup</figcaption>
+        <img class="slide__img" src="assets/slides/c20.jpg" alt="Scrapbook Fun - Web Mockup" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-21">
+        <figcaption class="slide__title">Visual Identity #3 — Techno Sleek</figcaption>
+        <img class="slide__img" src="assets/slides/c21.jpg" alt="Visual Identity #3 - Techno Sleek" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-22">
+        <figcaption class="slide__title">Color System #3 — Techno Sleek</figcaption>
+        <img class="slide__img" src="assets/slides/c22.jpg" alt="Color System #3 - Techno Sleek" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-23">
+        <figcaption class="slide__title">Techno Sleek — Web Mockup</figcaption>
+        <img class="slide__img" src="assets/slides/c23.jpg" alt="Techno Sleek - Web Mockup" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-24">
+        <figcaption class="slide__title">What We Like</figcaption>
+        <img class="slide__img" src="assets/slides/c24.jpg" alt="What We Like" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-25">
+        <figcaption class="slide__title">Apple’s Minimalism + Nova’s Taste</figcaption>
+        <img class="slide__img" src="assets/slides/c25.jpg" alt="Apple's Minimalism + Nova's Taste" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-26">
+        <figcaption class="slide__title">More Mockups</figcaption>
+        <img class="slide__img" src="assets/slides/c26.jpg" alt="More Mockups" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-27">
+        <figcaption class="slide__title">Photography Lockups</figcaption>
+        <img class="slide__img" src="assets/slides/c27.jpg" alt="Photography Lockups" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-28">
+        <figcaption class="slide__title">Poster Mockups</figcaption>
+        <img class="slide__img" src="assets/slides/c28.jpg" alt="Poster Mockups" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-29">
+        <figcaption class="slide__title">Billboard Mockup</figcaption>
+        <img class="slide__img" src="assets/slides/c29.jpg" alt="Billboard Mockup" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
+
+      <figure class="slide" id="slide-30">
+        <figcaption class="slide__title">Thank You</figcaption>
+        <img class="slide__img" src="assets/slides/c30.jpg" alt="Thank You" width="1920" height="1080" loading="lazy" decoding="async" />
+      </figure>
     </section>
 
     <footer class="site-footer" aria-label="clyx">
@@ -133,6 +271,6 @@
     </footer>
   </main>
 
-  <script src="script.js?v=4" defer></script>
+  <script src="script.js?v=5" defer></script>
 </body>
 </html>
