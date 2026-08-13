@@ -13,8 +13,8 @@ animated logo, then a scrolling series of slide images. No build step; open
 | `index.html` | Page. Slides are `<figure class="slide">` blocks inside `<section class="slides">`. |
 | `styles.css` | All styling. Hero background at `.landing__bg`, footer gradient at `.site-footer`. |
 | `script.js` | Password gate, hero logo draw-in animation, contents panel, slide reveal. |
-| `assets/title.svg` | Hero logo. Fetched by `script.js` and animated as a stroke draw-in. |
-| `assets/title.png` | Hero background image. |
+| `assets/clyxlogo.svg` | Hero logo. Fetched by `script.js` and revealed with an ink threshold sweep. |
+| `assets/title.jpg` | Hero background image. |
 | `assets/slides/` | Slide images and videos. |
 
 ## Still to replace
@@ -22,13 +22,12 @@ animated logo, then a scrolling series of slide images. No build step; open
 Everything below is a placeholder carried over from the previous project and
 must be swapped before this goes anywhere public:
 
-- [ ] `assets/title.svg` — hero logo. After swapping, update `.hero-logo { aspect-ratio }` in `styles.css` to match the new viewBox.
-- [ ] `assets/title.png` — hero background.
+- [x] `assets/clyxlogo.svg` — hero logo (viewBox 1130 x 558).
+- [x] `assets/title.jpg` — hero background.
 - [ ] `assets/favicon.jpg` — browser tab icon.
 - [ ] `assets/share.jpg` — social preview card (1200x675 is the standard size).
 - [ ] `assets/footerlogo.png` — footer wordmark.
-- [ ] `PASS_HASH` in `script.js` — currently the previous project's password. Regenerate with:
-      `echo -n 'yourpassword' | shasum -a 256`
+- [x] `PASS_HASH` in `script.js` — set.
 - [ ] "tagline goes here." in the `index.html` meta description.
 - [ ] Footer gradient colours at `.site-footer` in `styles.css`.
 
@@ -54,3 +53,20 @@ Video slides use the same class:
 
 `index.html` links `styles.css?v=N` and `script.js?v=N`. Bump `N` whenever
 either file changes so browsers and CDNs fetch the new version.
+
+## Hero ink animation
+
+`initHeroLogoInk()` in `script.js` blurs the logo once, then sweeps a hard alpha
+threshold from high to low. High threshold keeps only the densest stroke cores,
+so the mark starts broken and sparse; lowering it pulls in more of the blur
+ramp, thickening the letterforms until neighbours bleed together.
+
+Dials, all at the top of that function:
+
+| Constant | Effect |
+|---|---|
+| `BLUR` | How far ink can spread. Larger = letters merge sooner. Scaled off the viewBox width, so it survives a logo swap. |
+| `SLOPE` | Edge hardness. Higher = a harder snap with no soft fringe. |
+| `T_START` | Starting threshold. Above peak alpha means the logo starts invisible. |
+| `T_END` | Final weight. Lower = fatter and more merged. |
+| `DURATION` | Length of the sweep, in ms. |

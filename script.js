@@ -1,10 +1,13 @@
-// clyx — soft gate + hero logo stroke draw-in + fill pour
-// Stroke is clipped to each path so it draws *inside* the silhouette (no puff)
+// clyx — soft gate + hero logo ink threshold entrance
+// The logo is blurred once, then a hard alpha threshold sweeps from high to
+// low. High threshold keeps only the densest stroke cores (broken, sparse);
+// lowering it pulls in more of the blur ramp, so the mark thickens and
+// neighbouring letters bleed together.
 
 const UNLOCK_KEY = "clyx-unlocked";
 // SHA-256 of the site password (soft lock only — not real security)
 const PASS_HASH =
-  "7c2c8a3069aeeb16f3133e249b8b1f62c4a38a713c2767808415841fe69206a3";
+  "1f0201bae0ce0fee121f4ce1588905304337d5fb8e40ec3174c925c0d6b5bee7";
 
 async function sha256Hex(text) {
   const data = new TextEncoder().encode(text);
@@ -78,13 +81,13 @@ async function initGate() {
   });
 }
 
-async function initHeroLogoDraw() {
+async function initHeroLogoInk() {
   const wrap = document.getElementById("hero-logo");
   if (!wrap) return;
 
   let svgText;
   try {
-    const res = await fetch("assets/title.svg");
+    const res = await fetch("assets/clyxlogo.svg");
     if (!res.ok) throw new Error("logo fetch failed");
     svgText = await res.text();
   } catch (err) {
@@ -94,94 +97,106 @@ async function initHeroLogoDraw() {
   }
 
   wrap.innerHTML = svgText;
-  const strokeSvg = wrap.querySelector("svg");
-  if (!strokeSvg) {
+  const svg = wrap.querySelector("svg");
+  if (!svg) {
     document.body.classList.remove("is-booting");
     return;
   }
 
-  // Top layer = strokes (draw in), bottom layer = fills (ink pour)
-  strokeSvg.classList.add("stroke-layer");
-  const fillSvg = strokeSvg.cloneNode(true);
-  fillSvg.classList.remove("stroke-layer");
-  fillSvg.classList.add("fill-layer");
-  wrap.appendChild(fillSvg);
-
-  // Left → right draw order
-  const strokePaths = Array.from(strokeSvg.querySelectorAll("path"))
-    .map((p) => ({ el: p, x: p.getBBox().x }))
-    .sort((a, b) => a.x - b.x)
-    .map((o) => o.el);
-
-  // Clip each stroke to its own fill so only the *inner* half of the stroke shows.
-  // Use ~2× the desired visible weight (outer half is clipped away).
-  // Scaled off the viewBox so swapping in a logo drawn at a different size
-  // keeps the same on-screen weight (0.00245 ≈ 1.8 units at the original 735 wide).
-  const vbWidth = strokeSvg.viewBox.baseVal?.width || 735.2;
-  const STROKE_WIDTH = vbWidth * 0.00245;
   const NS = "http://www.w3.org/2000/svg";
+  const vbWidth = svg.viewBox.baseVal?.width || 1130;
 
-  let defs = strokeSvg.querySelector("defs");
+  // Blur radius is in viewBox units, so scale it off the artwork's own width —
+  // ~1.2% is enough for adjacent letters to bleed into each other at the fat end.
+  const BLUR = vbWidth * 0.012;
+
+  // alpha_out = SLOPE * alpha_in + offset, visible above ~0.5.
+  // So the cutoff is threshold = (0.5 - offset) / SLOPE. A steep slope means the
+  // blur ramp snaps to a hard edge instead of fading out.
+  const SLOPE = 50;
+  const T_START = 1.0;   // above peak alpha — nothing renders yet
+  const T_END = 0.26;    // fat, letters merging
+  const DURATION = 2000;
+
+  const offsetFor = (t) => 0.5 - SLOPE * t;
+  const matrixFor = (t) =>
+    `1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 ${SLOPE} ${offsetFor(t)}`;
+
+  let defs = svg.querySelector("defs");
   if (!defs) {
     defs = document.createElementNS(NS, "defs");
-    strokeSvg.insertBefore(defs, strokeSvg.firstChild);
+    svg.insertBefore(defs, svg.firstChild);
   }
 
-  strokePaths.forEach((p, i) => {
-    const clip = document.createElementNS(NS, "clipPath");
-    clip.id = `logo-stroke-clip-${i}`;
-    clip.setAttribute("clipPathUnits", "userSpaceOnUse");
+  const filter = document.createElementNS(NS, "filter");
+  filter.setAttribute("id", "clyx-ink");
+  // Default filter region clips at +10%, which would shear off the fattened
+  // margin as the threshold drops.
+  filter.setAttribute("x", "-25%");
+  filter.setAttribute("y", "-50%");
+  filter.setAttribute("width", "150%");
+  filter.setAttribute("height", "200%");
+  filter.setAttribute("color-interpolation-filters", "sRGB");
 
-    const clipShape = p.cloneNode(true);
-    clipShape.removeAttribute("class");
-    clipShape.removeAttribute("style");
-    clipShape.setAttribute("fill", "#ffffff");
-    clipShape.setAttribute("stroke", "none");
-    clipShape.setAttribute("clip-rule", "evenodd");
-    clip.appendChild(clipShape);
-    defs.appendChild(clip);
+  const blur = document.createElementNS(NS, "feGaussianBlur");
+  blur.setAttribute("in", "SourceAlpha");
+  blur.setAttribute("stdDeviation", String(BLUR));
+  blur.setAttribute("result", "blur");
 
-    p.setAttribute("clip-path", `url(#logo-stroke-clip-${i})`);
+  const threshold = document.createElementNS(NS, "feColorMatrix");
+  threshold.setAttribute("in", "blur");
+  threshold.setAttribute("type", "matrix");
+  threshold.setAttribute("values", matrixFor(T_START));
+  threshold.setAttribute("result", "goo");
 
-    const len = p.getTotalLength();
-    p.style.stroke = "#ffffff";
-    p.style.strokeWidth = String(STROKE_WIDTH);
-    p.style.strokeLinecap = "round";
-    p.style.strokeLinejoin = "round";
-    p.style.fill = "transparent";
-    p.setAttribute("fill", "none");
-    p.style.strokeDasharray = String(len);
-    p.style.strokeDashoffset = String(len);
+  // Paint the thresholded silhouette a flat colour so blurred RGB can't
+  // grey-fringe the edges.
+  const flood = document.createElementNS(NS, "feFlood");
+  flood.setAttribute("flood-color", "#ffffff");
+  flood.setAttribute("result", "flood");
+
+  const comp = document.createElementNS(NS, "feComposite");
+  comp.setAttribute("in", "flood");
+  comp.setAttribute("in2", "goo");
+  comp.setAttribute("operator", "in");
+
+  filter.append(blur, threshold, flood, comp);
+  defs.appendChild(filter);
+
+  // Everything that isn't defs goes under one filtered group.
+  const group = document.createElementNS(NS, "g");
+  group.setAttribute("filter", "url(#clyx-ink)");
+  Array.from(svg.childNodes).forEach((node) => {
+    if (node !== defs) group.appendChild(node);
   });
+  svg.appendChild(group);
 
-  fillSvg.querySelectorAll("path").forEach((p) => {
-    p.style.stroke = "none";
-    p.style.fill = "#ffffff";
-    p.setAttribute("fill", "#ffffff");
+  svg.querySelectorAll("path").forEach((p) => {
     p.removeAttribute("class");
-    p.removeAttribute("clip-path");
+    p.setAttribute("fill", "#ffffff");
+    p.setAttribute("stroke", "none");
   });
 
   wrap.classList.add("is-ready");
-  void strokeSvg.getBoundingClientRect();
 
-  requestAnimationFrame(() => {
-    const TOTAL_DRAW = 0.95;
-    const STAGGER_SPAN = 0.6;
+  const easeOutCubic = (p) => 1 - Math.pow(1 - p, 3);
+  let startedAt = null;
 
-    strokePaths.forEach((p, i) => {
-      const delay =
-        (i / Math.max(1, strokePaths.length - 1)) * STAGGER_SPAN;
-      p.style.transition = `stroke-dashoffset ${TOTAL_DRAW}s cubic-bezier(.4,.0,.2,1) ${delay}s`;
-      p.style.strokeDashoffset = "0";
-    });
+  function step(now) {
+    if (startedAt === null) startedAt = now;
+    const p = Math.min(1, (now - startedAt) / DURATION);
+    const t = T_START + (T_END - T_START) * easeOutCubic(p);
+    threshold.setAttribute("values", matrixFor(t));
+    if (p < 1) {
+      requestAnimationFrame(step);
+    } else {
+      wrap.classList.remove("is-inking");
+      document.body.classList.remove("is-booting");
+    }
+  }
 
-    const pourAtMs = Math.max(0, (STAGGER_SPAN + TOTAL_DRAW - 0.1) * 1000);
-    setTimeout(() => wrap.classList.add("is-poured"), pourAtMs);
-
-    const doneAtMs = pourAtMs + 1600;
-    setTimeout(() => document.body.classList.remove("is-booting"), doneAtMs);
-  });
+  wrap.classList.add("is-inking");
+  requestAnimationFrame(step);
 }
 
 function initContents() {
@@ -291,5 +306,5 @@ function initSlideReveal() {
   await initGate();
   initContents();
   initSlideReveal();
-  await initHeroLogoDraw();
+  await initHeroLogoInk();
 })();

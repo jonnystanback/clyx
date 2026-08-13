@@ -197,7 +197,7 @@ html.is-locked #site {
 .landing__bg {
   position: absolute;
   inset: 0;
-  background: url("assets/title.png") center bottom / cover no-repeat;
+  background: url("assets/title.jpg") center bottom / cover no-repeat;
   z-index: 0;
 }
 
@@ -217,10 +217,11 @@ html.is-locked #site {
 
 .hero-logo {
   position: relative;
-  width: 96vw;
+  /* Matches the clyxlogo.svg viewBox. The second term caps height on short
+     viewports — at ~2:1 a plain 96vw would overflow the landing section. */
+  width: min(74vw, 118vh);
   max-width: none;
-  /* Matches the title.svg viewBox so the two layers sit flush in the box. */
-  aspect-ratio: 2002.6 / 685.3;
+  aspect-ratio: 1130 / 558;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -238,21 +239,13 @@ html.is-locked #site {
   overflow: visible;
 }
 
-.hero-logo .fill-layer path {
+.hero-logo path {
   fill: #ffffff;
 }
 
-.hero-logo .stroke-layer path {
-  fill: none;
-}
-
-.hero-logo .fill-layer {
-  clip-path: inset(100% 0 0 0);
-  transition: clip-path 1.55s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hero-logo.is-poured .fill-layer {
-  clip-path: inset(0 0 0 0);
+/* The threshold sweep re-runs a blur every frame; hint it only while running. */
+.hero-logo.is-inking svg {
+  will-change: filter;
 }
 
 /* ---------- Slides ---------- */
