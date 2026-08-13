@@ -546,17 +546,20 @@ body.contents-open .contents-panel {
 }
 
 @media (max-width: 720px) {
-  /* A portrait viewport crops a 16:9 hero down to a narrow vertical sliver.
-     Show the whole frame instead and let a black ground fill the remainder,
-     so the photo keeps its horizontal composition on phones. */
-  .landing__bg {
-    background-size: contain;
-    background-position: center center;
-    background-color: #000000;
+  /* Full height on a phone forces a choice between cropping the 16:9 hero to
+     a vertical sliver or letterboxing it. Instead, let the section take the
+     photo's own proportions: it fills edge to edge with no crop and no bars. */
+  .landing {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
   }
 
-  /* With the photo centred rather than full-bleed, a top-aligned logo would
-     float in the black band above it. Centre both so they sit together. */
+  .landing__bg {
+    background-position: center center;
+  }
+
+  /* The section is now only as tall as the photo, so centre the logo in it. */
   .landing__logo-wrap {
     align-items: center;
     padding: 0 clamp(1rem, 5vw, 1.5rem);
