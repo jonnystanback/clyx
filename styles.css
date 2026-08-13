@@ -521,29 +521,28 @@ body.contents-open .contents-panel {
   position: relative;
   z-index: 1;
   width: 100%;
-  /* Near-black navy lifting slightly toward the page's bottom edge. */
-  background: linear-gradient(180deg, #05122b 0%, #061a43 100%);
+  background: #000000;
   overflow: hidden;
   line-height: 0;
 }
 
 .site-footer__inner {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  /* Breathing room above the wordmark */
-  padding: clamp(3rem, 8vw, 5.5rem) 0 0;
+  padding: clamp(3rem, 7vw, 6rem) clamp(1rem, 3vw, 3rem);
   margin: 0;
 }
 
 .site-footer__logo {
   display: block;
-  /* Scale past the viewport + crop bottom flush to site edge */
-  width: 106%;
+  width: 100%;
   max-width: none;
   height: auto;
-  margin-left: -3%;
-  margin-bottom: -2.5%;
+  /* clyxlogo.svg has no fill attribute, so it renders black. Inverting is the
+     one-liner that turns it white while keeping a single source of truth for
+     the mark — alpha is untouched, so the transparent ground stays black. */
+  filter: invert(1);
 }
 
 @media (max-width: 720px) {
