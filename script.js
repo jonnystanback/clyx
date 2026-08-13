@@ -114,9 +114,11 @@ async function initHeroLogoInk() {
   // So the cutoff is threshold = (0.5 - offset) / SLOPE. A steep slope means the
   // blur ramp snaps to a hard edge instead of fading out.
   const SLOPE = 50;
-  const T_START = 1.0;   // above peak alpha — nothing renders yet
-  const T_END = 0.26;    // fat, letters merging
-  const DURATION = 2000;
+  const T_START = 1.0;      // above peak alpha — nothing renders yet
+  const T_END = 0.26;       // fat, letters merging
+  const T_LOOP_THIN = 0.72; // sparse/broken end of the boomerang
+  const ENTER_MS = 3200;    // first sweep, invisible -> fat
+  const LOOP_MS = 2800;     // one leg of the boomerang
 
   const offsetFor = (t) => 0.5 - SLOPE * t;
   const matrixFor = (t) =>
@@ -180,23 +182,84 @@ async function initHeroLogoInk() {
   wrap.classList.add("is-ready");
 
   const easeOutCubic = (p) => 1 - Math.pow(1 - p, 3);
-  let startedAt = null;
+  const easeInOutCubic = (p) =>
+    p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+  const lerp = (a, b, p) => a + (b - a) * p;
 
-  function step(now) {
-    if (startedAt === null) startedAt = now;
-    const p = Math.min(1, (now - startedAt) / DURATION);
-    const t = T_START + (T_END - T_START) * easeOutCubic(p);
-    threshold.setAttribute("values", matrixFor(t));
-    if (p < 1) {
-      requestAnimationFrame(step);
-    } else {
-      wrap.classList.remove("is-inking");
-      document.body.classList.remove("is-booting");
-    }
+  // Reduced motion: land on the final weight and never animate.
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  if (reduced.matches) {
+    threshold.setAttribute("values", matrixFor(T_END));
+    document.body.classList.remove("is-booting");
+    return;
   }
 
+  let phase = "enter";
+  let phaseStart = null;
+  let elapsedAtStop = 0;
+  let rafId = null;
+  let paused = false;
+
+  function step(now) {
+    if (phaseStart === null) phaseStart = now - elapsedAtStop;
+    const elapsed = now - phaseStart;
+
+    let t;
+    if (phase === "enter") {
+      const p = Math.min(1, elapsed / ENTER_MS);
+      t = lerp(T_START, T_END, easeOutCubic(p));
+      if (p === 1) {
+        phase = "loop";
+        phaseStart = now;
+        elapsedAtStop = 0;
+        document.body.classList.remove("is-booting");
+      }
+    } else {
+      // Boomerang: fat -> thin -> fat, easing through both turnarounds so the
+      // direction change reads as a breath rather than a bounce.
+      const cycle = LOOP_MS * 2;
+      const u = (elapsed % cycle) / cycle;
+      const tri = u < 0.5 ? u * 2 : 2 - u * 2;
+      t = lerp(T_END, T_LOOP_THIN, easeInOutCubic(tri));
+    }
+
+    threshold.setAttribute("values", matrixFor(t));
+    rafId = requestAnimationFrame(step);
+  }
+
+  function start() {
+    if (rafId !== null) return;
+    paused = false;
+    // phaseStart is rebuilt from elapsedAtStop on the next frame, so the sweep
+    // resumes mid-cycle instead of snapping back to the start.
+    phaseStart = null;
+    rafId = requestAnimationFrame(step);
+  }
+
+  function stop() {
+    if (rafId === null) return;
+    cancelAnimationFrame(rafId);
+    rafId = null;
+    paused = true;
+    if (phaseStart !== null) elapsedAtStop = performance.now() - phaseStart;
+  }
+
+  // A blur re-runs every frame at hero size, so don't burn GPU on a logo that
+  // has been scrolled past or a tab in the background.
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0 }
+    ).observe(wrap);
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+    else if (paused) start();
+  });
+
   wrap.classList.add("is-inking");
-  requestAnimationFrame(step);
+  start();
 }
 
 function initContents() {

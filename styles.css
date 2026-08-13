@@ -219,7 +219,7 @@ html.is-locked #site {
   position: relative;
   /* Matches the clyxlogo.svg viewBox. The second term caps height on short
      viewports — at ~2:1 a plain 96vw would overflow the landing section. */
-  width: min(74vw, 118vh);
+  width: min(63vw, 100vh);
   max-width: none;
   aspect-ratio: 1130 / 558;
   opacity: 0;
