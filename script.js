@@ -266,6 +266,17 @@ async function initHeroLogoInk() {
   });
 
   wrap.classList.add("is-inking");
+
+  // is-booting locks page scroll for the duration of the entrance. Releasing it
+  // from inside the rAF loop is not safe: the loop is pausable, so a tab
+  // backgrounded (or a hero reported off-screen) during the first ENTER_MS
+  // would cancel the frame that clears it and strand the page unscrollable.
+  // A timer always fires.
+  window.setTimeout(
+    () => document.body.classList.remove("is-booting"),
+    ENTER_MS + 100
+  );
+
   start();
 }
 
@@ -544,11 +555,27 @@ function initLandingSlideshow() {
   });
 }
 
+// Last-resort unlock: whatever happens above, the page must be scrollable.
+window.setTimeout(() => document.body.classList.remove("is-booting"), 6000);
+
 (async function boot() {
   await initGate();
-  initContents();
-  initSlideReveal();
-  initOverview();
-  initLandingSlideshow();
-  await initHeroLogoInk();
+
+  // Each step is independent — a failure in one must not strand the others.
+  [initContents, initSlideReveal, initOverview, initLandingSlideshow].forEach(
+    (fn) => {
+      try {
+        fn();
+      } catch (err) {
+        console.error(`${fn.name} failed`, err);
+      }
+    }
+  );
+
+  try {
+    await initHeroLogoInk();
+  } catch (err) {
+    console.error("initHeroLogoInk failed", err);
+    document.body.classList.remove("is-booting");
+  }
 })();
