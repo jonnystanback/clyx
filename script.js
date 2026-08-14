@@ -116,7 +116,7 @@ async function initHeroLogoInk() {
   const SLOPE = 50;
   const T_START = 1.0;      // above peak alpha — nothing renders yet
   const T_END = 0.26;       // fat, letters merging
-  const T_LOOP_THIN = 0.86; // sparse/broken end of the boomerang
+  const T_LOOP_THIN = 0.93; // sparse/broken end of the boomerang — 0.07 off T_START
   const ENTER_MS = 2500;    // first sweep, invisible -> fat
   const LOOP_MS = 2100;     // one leg of the boomerang
 
