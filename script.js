@@ -365,9 +365,73 @@ function initSlideReveal() {
   slides.forEach((slide) => observer.observe(slide));
 }
 
+// Bird's-eye grid of the whole deck. Built from the slides themselves so it
+// never drifts out of sync, and it reuses each slide's own src — the browser
+// serves those from cache once the deck has loaded.
+function initOverview() {
+  const grid = document.getElementById("overview-grid");
+  if (!grid) return;
+
+  const slides = Array.from(document.querySelectorAll(".slide[id]"));
+  if (slides.length === 0) return;
+
+  slides.forEach((slide, index) => {
+    const img = slide.querySelector("img.slide__img, video.slide__img");
+    if (!img) return;
+
+    const titleEl = slide.querySelector(".slide__title");
+    const title = titleEl ? titleEl.textContent.trim() : `Slide ${index + 1}`;
+    const num = String(index + 1).padStart(2, "0");
+
+    const link = document.createElement("a");
+    link.className = "overview__item";
+    link.href = `#${slide.id}`;
+    link.setAttribute("aria-label", `Slide ${num}: ${title}`);
+
+    const thumb = document.createElement("img");
+    thumb.className = "overview__thumb";
+    thumb.src = img.getAttribute("src");
+    thumb.alt = "";
+    thumb.loading = "lazy";
+    thumb.decoding = "async";
+    // Reserve the right box before the thumb decodes so the grid doesn't jump.
+    const w = img.getAttribute("width");
+    const h = img.getAttribute("height");
+    if (w && h) {
+      thumb.width = Number(w);
+      thumb.height = Number(h);
+    }
+
+    const meta = document.createElement("span");
+    meta.className = "overview__meta";
+
+    const numEl = document.createElement("span");
+    numEl.className = "overview__num";
+    numEl.textContent = num;
+
+    const labelEl = document.createElement("span");
+    labelEl.className = "overview__label";
+    labelEl.textContent = title;
+
+    meta.append(numEl, labelEl);
+    link.append(thumb, meta);
+
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      // scrollIntoView honours the slide's scroll-margin-top, so the sticky
+      // contents toggle never lands on top of the slide title.
+      slide.scrollIntoView({ behavior: "smooth", block: "start" });
+      history.replaceState(null, "", `#${slide.id}`);
+    });
+
+    grid.appendChild(link);
+  });
+}
+
 (async function boot() {
   await initGate();
   initContents();
   initSlideReveal();
+  initOverview();
   await initHeroLogoInk();
 })();

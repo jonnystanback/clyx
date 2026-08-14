@@ -257,7 +257,8 @@ html.is-locked #site {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(3rem, 8vh, 5.5rem);
+  /* 45% tighter than the original clamp(3rem, 8vh, 5.5rem). */
+  gap: clamp(1.65rem, 4.4vh, 3.03rem);
   padding:
     clamp(4rem, 10vh, 7rem)
     clamp(1rem, 4vw, 2rem)
@@ -308,6 +309,116 @@ html.is-locked #site {
   /* Same 8% shadow on every slide. Positive spread pushes the soft cast
      onto the page so it still reads around near-black artwork. */
   box-shadow: 0 8px 28px 4px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ---------- Overview grid (bird's eye view of the deck) ---------- */
+
+.overview {
+  position: relative;
+  z-index: 1;
+  padding:
+    clamp(2rem, 5vh, 3.5rem)
+    clamp(1rem, 4vw, 2rem)
+    clamp(4rem, 9vh, 6rem);
+}
+
+.overview__inner {
+  width: var(--overview-width, 72vw);
+  margin: 0 auto;
+}
+
+.overview__heading {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 100;
+  font-size: clamp(0.8rem, 1.35vw, 0.95rem);
+  letter-spacing: 0.04em;
+  color: rgba(17, 17, 17, 0.72);
+  margin-bottom: 1.1rem;
+}
+
+.overview__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: clamp(0.6rem, 1.2vw, 1rem);
+}
+
+.overview__item {
+  position: relative;
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+  text-decoration: none;
+  background: rgba(17, 17, 17, 0.06);
+  box-shadow: 0 4px 14px 2px rgba(0, 0, 0, 0.07);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.overview__thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.overview__meta {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  padding: 0.5rem 0.55rem;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 45%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.overview__num,
+.overview__label {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #fff;
+  line-height: 1.2;
+}
+
+.overview__num {
+  font-weight: 400;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+}
+
+.overview__label {
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.01em;
+}
+
+.overview__item:hover,
+.overview__item:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px 4px rgba(0, 0, 0, 0.14);
+}
+
+.overview__item:hover .overview__meta,
+.overview__item:focus-visible .overview__meta {
+  opacity: 1;
+}
+
+.overview__item:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overview__item {
+    transition: none;
+  }
 }
 
 /* ---------- Contents toggle (sticky + / x) — LEFT ---------- */
@@ -528,9 +639,9 @@ body.contents-open .contents-panel {
 
 .site-footer__inner {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  padding: clamp(3rem, 7vw, 6rem) clamp(1rem, 3vw, 3rem);
+  padding: clamp(3rem, 7vw, 6rem) clamp(1rem, 3vw, 3rem) 0;
   margin: 0;
 }
 
@@ -543,6 +654,10 @@ body.contents-open .contents-panel {
      one-liner that turns it white while keeping a single source of truth for
      the mark — alpha is untouched, so the transparent ground stays black. */
   filter: invert(1);
+  /* Push the mark past the page edge so .site-footer's overflow: hidden slices
+     its lower edge. Percentage margins resolve against width, and the mark is
+     ~2:1, so -7% here crops roughly 14% of its height. */
+  margin-bottom: -7%;
 }
 
 @media (max-width: 720px) {
@@ -571,6 +686,14 @@ body.contents-open .contents-panel {
 
   .slides {
     --slide-width: 88vw;
+  }
+
+  .overview__inner {
+    --overview-width: 88vw;
+  }
+
+  .overview__grid {
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   }
 
   .slide {
