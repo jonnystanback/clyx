@@ -446,13 +446,19 @@ function initLandingSlideshow() {
     "assets/title4.jpg",
     "assets/title5.jpg",
   ];
-  const HOLD_MS = 4200; // time each image is held before the next fade starts
+  const HOLD_MS = 1600; // how often the background switches
+  const FADE_MS = 550;  // crossfade length; must stay well under HOLD_MS
 
   const layerA = document.getElementById("landing-bg-a");
   const layerB = document.getElementById("landing-bg-b");
   if (!layerA || !layerB || BACKGROUNDS.length < 2) return;
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  // Drive the duration from JS so the CSS transition and the role-swap timer
+  // below can never drift apart.
+  layerA.style.transitionDuration = `${FADE_MS}ms`;
+  layerB.style.transitionDuration = `${FADE_MS}ms`;
 
   const url = (src) => `url("${src}")`;
   layerA.style.backgroundImage = url(BACKGROUNDS[0]);
@@ -461,8 +467,15 @@ function initLandingSlideshow() {
   let front = layerA;   // currently visible
   let back = layerB;    // the one we paint next and fade up
   let timerId = null;
+  let busy = false;
 
   function step() {
+    // At a 1.6s cadence an uncached image can still be decoding when the next
+    // tick fires. Without this guard two fades would overlap and the role swap
+    // would race.
+    if (busy) return;
+    busy = true;
+
     index = (index + 1) % BACKGROUNDS.length;
     const next = BACKGROUNDS[index];
 
@@ -484,10 +497,12 @@ function initLandingSlideshow() {
         const swap = front;
         front = back;
         back = swap;
-      }, 1150);
+        busy = false;
+      }, FADE_MS + 50);
     };
     pre.onerror = () => {
       console.warn(`landing background missing: ${next}`);
+      busy = false;
     };
     pre.src = next;
   }
