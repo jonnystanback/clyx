@@ -441,10 +441,10 @@ function initOverview() {
 function initLandingSlideshow() {
   const BACKGROUNDS = [
     "assets/title.jpg",
-    "assets/title2.jpg",
-    "assets/title3.jpg",
-    "assets/title4.jpg",
     "assets/title5.jpg",
+    "assets/title4.jpg",
+    "assets/title3.jpg",
+    "assets/title2.jpg",
   ];
   const HOLD_MS = 1600; // how often the background switches
   const FADE_MS = 550;  // crossfade length; must stay well under HOLD_MS
