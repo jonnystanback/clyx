@@ -111,9 +111,16 @@ async function initHeroLogoInk() {
   const BLUR = vbWidth * 0.012;
 
   // alpha_out = SLOPE * alpha_in + offset, visible above ~0.5.
-  // So the cutoff is threshold = (0.5 - offset) / SLOPE. A steep slope means the
-  // blur ramp snaps to a hard edge instead of fading out.
-  const SLOPE = 50;
+  // So the cutoff is threshold = (0.5 - offset) / SLOPE.
+  //
+  // SLOPE controls edge hardness. The transition spans 1/SLOPE of alpha, and
+  // how many *pixels* that covers depends on how fast the blurred alpha changes
+  // there. Near a glyph edge the ramp is steep, so even a gentle slope snaps
+  // hard. Near the ramp's peak — where the high thresholds of the thin end sit —
+  // it flattens out, so the same 1/SLOPE band smears across many pixels and the
+  // edge goes soft. Keeping SLOPE high fixes the thin end without hurting the
+  // fat end: at 200 the band is 0.005 alpha, close to one 8-bit step.
+  const SLOPE = 200;
   const T_START = 1.0;      // above peak alpha — nothing renders yet
   const T_END = 0.26;       // fat, letters merging
   const T_LOOP_THIN = 0.93; // sparse/broken end of the boomerang — 0.07 off T_START
@@ -428,10 +435,95 @@ function initOverview() {
   });
 }
 
+// Crossfade the landing background through a set of images. Two stacked
+// layers swap roles each step, so there is never a gap between them.
+// To add or remove a background, edit BACKGROUNDS.
+function initLandingSlideshow() {
+  const BACKGROUNDS = [
+    "assets/title.jpg",
+    "assets/title2.jpg",
+    "assets/title3.jpg",
+    "assets/title4.jpg",
+    "assets/title5.jpg",
+  ];
+  const HOLD_MS = 4200; // time each image is held before the next fade starts
+
+  const layerA = document.getElementById("landing-bg-a");
+  const layerB = document.getElementById("landing-bg-b");
+  if (!layerA || !layerB || BACKGROUNDS.length < 2) return;
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  const url = (src) => `url("${src}")`;
+  layerA.style.backgroundImage = url(BACKGROUNDS[0]);
+
+  let index = 0;
+  let front = layerA;   // currently visible
+  let back = layerB;    // the one we paint next and fade up
+  let timerId = null;
+
+  function step() {
+    index = (index + 1) % BACKGROUNDS.length;
+    const next = BACKGROUNDS[index];
+
+    // Only swap once the bitmap is decoded, otherwise the fade reveals blank.
+    const pre = new Image();
+    pre.onload = () => {
+      back.style.backgroundImage = url(next);
+      // The fading layer is always the one carrying --fade, so move the class
+      // along with the role rather than animating whichever element is on top.
+      back.classList.add("landing__bg--fade");
+      void back.offsetWidth;
+      back.classList.add("is-active");
+
+      window.setTimeout(() => {
+        front.classList.remove("is-active");
+        front.classList.remove("landing__bg--fade");
+        front.style.zIndex = "0";
+        back.style.zIndex = "0";
+        const swap = front;
+        front = back;
+        back = swap;
+      }, 1150);
+    };
+    pre.onerror = () => {
+      console.warn(`landing background missing: ${next}`);
+    };
+    pre.src = next;
+  }
+
+  function start() {
+    if (timerId === null) timerId = window.setInterval(step, HOLD_MS);
+  }
+  function stop() {
+    if (timerId !== null) {
+      window.clearInterval(timerId);
+      timerId = null;
+    }
+  }
+
+  // Don't decode and repaint full-bleed images for a hero nobody is looking at.
+  const landing = document.querySelector(".landing");
+  if (landing && "IntersectionObserver" in window) {
+    new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? start() : stop()),
+      { threshold: 0 }
+    ).observe(landing);
+  } else {
+    start();
+  }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stop();
+    else start();
+  });
+}
+
 (async function boot() {
   await initGate();
   initContents();
   initSlideReveal();
   initOverview();
+  initLandingSlideshow();
   await initHeroLogoInk();
 })();

@@ -201,6 +201,24 @@ html.is-locked #site {
   z-index: 0;
 }
 
+/* The second layer sits on top and fades in to reveal the next image, then
+   the two swap roles. Only this one animates, so there is never a flash of
+   background between images. */
+.landing__bg--fade {
+  opacity: 0;
+  transition: opacity 1.1s ease;
+}
+
+.landing__bg--fade.is-active {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing__bg--fade {
+    transition: none;
+  }
+}
+
 .landing__logo-wrap {
   position: relative;
   z-index: 1;

@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.min.css" />
   <!-- Bump ?v= whenever styles.css or script.js changes, so browsers
        and CDNs fetch the new file instead of a cached copy. -->
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=11" />
   <script>
     try {
       if (localStorage.getItem("clyx-unlocked") !== "1") {
@@ -63,7 +63,9 @@
 
   <main id="site">
     <section class="landing" aria-label="clyx">
-      <div class="landing__bg" aria-hidden="true"></div>
+      <!-- Two stacked layers; script.js crossfades between them. -->
+      <div class="landing__bg" id="landing-bg-a" aria-hidden="true"></div>
+      <div class="landing__bg landing__bg--fade" id="landing-bg-b" aria-hidden="true"></div>
 
       <div class="landing__logo-wrap">
         <div class="hero-logo" id="hero-logo" aria-label="clyx">
@@ -279,6 +281,6 @@
     </footer>
   </main>
 
-  <script src="script.js?v=10" defer></script>
+  <script src="script.js?v=11" defer></script>
 </body>
 </html>
