@@ -201,17 +201,13 @@ html.is-locked #site {
   z-index: 0;
 }
 
-/* The second layer sits on top and fades in to reveal the next image, then
-   the two swap roles. Only this one animates, so there is never a flash of
-   background between images. */
+/* Two identical layers. script.js paints the incoming image onto the hidden
+   one, raises its z-index so it covers the other, and fades its opacity up.
+   Stacking is set explicitly because DOM order alone would always put the same
+   element on top, and half the transitions would then happen out of sight.
+   Duration is overridden from script.js (FADE_MS) so the two can't drift. */
 .landing__bg--fade {
-  opacity: 0;
-  /* Duration is overridden from script.js (FADE_MS) so the two can't drift. */
   transition: opacity 0.55s ease;
-}
-
-.landing__bg--fade.is-active {
-  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -222,7 +218,7 @@ html.is-locked #site {
 
 .landing__logo-wrap {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: 100%;
   height: 100%;
   display: flex;

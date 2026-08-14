@@ -461,7 +461,13 @@ function initLandingSlideshow() {
   layerB.style.transitionDuration = `${FADE_MS}ms`;
 
   const url = (src) => `url("${src}")`;
+
+  // Explicit initial state: A visible on the bottom, B transparent above it.
   layerA.style.backgroundImage = url(BACKGROUNDS[0]);
+  layerA.style.opacity = "1";
+  layerA.style.zIndex = "1";
+  layerB.style.opacity = "0";
+  layerB.style.zIndex = "0";
 
   let index = 0;
   let front = layerA;   // currently visible
@@ -483,17 +489,21 @@ function initLandingSlideshow() {
     const pre = new Image();
     pre.onload = () => {
       back.style.backgroundImage = url(next);
-      // The fading layer is always the one carrying --fade, so move the class
-      // along with the role rather than animating whichever element is on top.
-      back.classList.add("landing__bg--fade");
+
+      // Raise the incoming layer above the outgoing one before fading it up.
+      // Without this the fade only shows on alternate steps, because DOM order
+      // fixes which element paints on top.
+      back.style.zIndex = "2";
+      front.style.zIndex = "1";
       void back.offsetWidth;
-      back.classList.add("is-active");
+      back.style.opacity = "1";
 
       window.setTimeout(() => {
-        front.classList.remove("is-active");
-        front.classList.remove("landing__bg--fade");
+        // The outgoing layer is fully covered by now, so drop it to
+        // transparent instantly and hand it the "next up" role.
+        front.style.opacity = "0";
         front.style.zIndex = "0";
-        back.style.zIndex = "0";
+        back.style.zIndex = "1";
         const swap = front;
         front = back;
         back = swap;
